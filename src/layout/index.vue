@@ -1,8 +1,8 @@
-<!-- 
-    @description: app的主布局
+/**
+    @description: app的主要布局
     @Author: Ocean
     @date: 2022/08/02
- -->
+*/
 <template>
     <div>
         <el-container>

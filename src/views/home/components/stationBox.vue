@@ -34,8 +34,8 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 import _service from '../../../service/index.js';
-const stationList1 = reactive([])
-const stationList2 = reactive([])
+let stationList1 = reactive([])
+let stationList2 = reactive([])
 
 
 </script>

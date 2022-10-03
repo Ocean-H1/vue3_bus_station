@@ -1,10 +1,10 @@
 <template>
     <div class="homeMenu">
         <el-menu :default-active="$route.path" mode="horizontal" router background-color="#d3e5f1" :ellipsis="false">
-            <el-menu-item index="/layout/home">首页</el-menu-item>
-            <el-menu-item index="/layout/refund">退票</el-menu-item>
-            <el-menu-item index="/layout/help">帮助中心</el-menu-item>
-            <el-menu-item index="/layout/advise">投诉建议</el-menu-item>
+            <el-menu-item index="/home">首页</el-menu-item>
+            <el-menu-item index="/refund">退票</el-menu-item>
+            <el-menu-item index="/help">帮助中心</el-menu-item>
+            <el-menu-item index="/advise">投诉建议</el-menu-item>
             <!-- 根据用户权限显示 -->
             <el-sub-menu index="/">
                 <template #title>后台管理</template>
