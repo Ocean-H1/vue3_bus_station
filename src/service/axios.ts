@@ -17,8 +17,9 @@ initAxios.interceptors.request.use(config => {
 initAxios.interceptors.response.use(res => {
     // 处理响应失败时的情况
     if (res.data.code && res.data.code !== 10000) {
-        ElMessage.error(res.data.message)
+        return ElMessage.error(res.data.message)
     }
+    
     return res
 })
 

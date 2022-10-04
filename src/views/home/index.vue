@@ -1,6 +1,6 @@
 <template>
     <div class="home">
-        <!-- 第一部分  查询  轮播图  公告 -->
+        <!-- 第一部分  查询&轮播图&公告 -->
         <div class="first-container">
             <Inquire></Inquire>
             <Swiper></Swiper>
@@ -10,7 +10,7 @@
         <div class="process">
             <Process></Process>
         </div>
-        <!-- 热门线路 和 车站介绍 -->
+        <!-- 热门线路&车站介绍 -->
         <div class="footer-container">
             <!-- 车站介绍 -->
             <div class="footer-station">

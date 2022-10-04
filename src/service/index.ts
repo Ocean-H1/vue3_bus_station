@@ -4,7 +4,6 @@ import initAxios from './axios'
 const Axios = initAxios()
 
 // 统一管理请求
-
 const _service = {
     // 获取所有地区列表
     getAllRegions() {
@@ -30,11 +29,19 @@ const _service = {
         })
     },
     // 发送乘车码到手机接口
-    sendRideCode(params:senRideCode) {
+    sendRideCode(params:senRideCodeParams) {
         return Axios({
             url: '/query/rideCode/sendRideCode',
             method: 'GET',
             params
+        })
+    },
+    // 用户登录
+    userLogin(data:loginParams) {
+        return Axios({
+            url: '/permissions/login',
+            method: 'POST',
+            data, 
         })
     }
 }

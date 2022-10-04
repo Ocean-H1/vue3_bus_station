@@ -1,7 +1,7 @@
  /**
     @description: 查询车票的组件
     @Author: Ocean
-    @date: 2022/08/02
+    @date: 2022/10/02
  */
 <template>
     <el-tabs type="border-card" class="inquire">
@@ -15,8 +15,8 @@
                     <span>查询车票</span>
                 </span>
             </template>
-            <el-form :model="queryForm" ref="queryFormRef" :rules="queryRules" label-width="100px"
-                label-position="left">
+            <el-form :model="queryForm" ref="queryFormRef" :rules="queryRules" label-width="100px" label-position="left"
+                size="large">
                 <el-form-item label="起始地" prop="start_region_name">
                     <el-autocomplete v-model="queryForm.start_region_name" placeholder="请选择起始地" @select="start_Select"
                         clearable value-key="city_name" :fetch-suggestions="querySearch" :debounce="300"
@@ -64,23 +64,13 @@
                 </span>
             </template>
             <el-form :model="ticketForm" ref="ticketFormRef" :rules="ticketFormRules" label-width="100px"
-                label-position="left">
+                label-position="left" size="large">
                 <el-form-item label="手机号" prop="phone_number">
                     <el-input v-model="ticketForm.phone_number" placeholder="请输入手机号" clearable></el-input>
                 </el-form-item>
                 <el-form-item label="验证码" prop="check_code">
-                    <div class="Code_Container">
-
-                        <img :src="codeImgUrl" alt="验证码" class="checkCode" @click="refreshCodeImg">
-
-                        <el-input v-model="ticketForm.check_code" placeholder="点击图片刷新" @focus="refreshCodeImg">
-                        </el-input>
-
-                    </div>
-
-
+                    <CheckCode :data="ticketForm"></CheckCode>
                 </el-form-item>
-
                 <el-button type="primary" color="#068abb" size="large" @click="sendRideCode">发 送</el-button>
 
             </el-form>
@@ -92,16 +82,21 @@
 <script setup lang="ts">
 import { Search, Ticket } from '@element-plus/icons-vue';
 import { onMounted, reactive, ref } from 'vue';
+import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import _service from '../../service';
+import CheckCode from './check_code.vue'
 
-
-const queryFormRef = ref<FormInstance>()
-const ticketFormRef = ref<FormInstance>()
-// 地区列表
+// 所有地区列表
 const regionsList = reactive<RegionsList[]>([])
 const regionsNameList = reactive<string[]>([])
-// 查询的参数对象 
+// 加载地区列表(用于输入建议)
+const loadAllRegions = async () => {
+    const { data: res } = await _service.getAllRegions()
+    // 保存数据
+    regionsList.push(...res.data.region_list)
+}
+// 查询线路表单
 const queryForm = reactive({
     start_region_name: '',
     final_region_name: '',
@@ -109,10 +104,7 @@ const queryForm = reactive({
     final_region_id: 0,
     shuttle_shift_date: ''
 })
-const ticketForm = reactive({
-    phone_number: '',
-    check_code: ''
-})
+const queryFormRef = ref<FormInstance>()
 // 自定义 起始/目的地 的验证规则
 const validCity = (rule: any, value: any, callback: any) => {
     // 造出一个只有城市名的数组regionsNameList
@@ -125,7 +117,6 @@ const validCity = (rule: any, value: any, callback: any) => {
         callback(new Error('请选择列表中已有城市!'))
     }
 }
-// 验证规则对象
 const queryRules = reactive<FormRules>({
     start_region_name: [
         { required: true, message: '请输入起始地', trigger: 'blur' },
@@ -147,31 +138,7 @@ const queryRules = reactive<FormRules>({
         { required: true, message: '请选择乘车日期', trigger: 'blur && change' },
     ]
 })
-const ticketFormRules = reactive<FormRules>({
-    phone_number: [
-        { required: true, message: '请输入手机号', trigger: 'blur' },
-        {
-            type: 'string',
-            pattern: /^(13\d|14[5|7]|15\d|166|17[3|6|7]|18\d)\d{8}$/,
-            message: '请输入有效的手机号码',
-            trigger: 'blur',
-        },
-    ],
-    check_code: [
-        { required: true, message: '请输入验证码', trigger: 'blur' },
-    ],
-})
-// 图片验证码URL
-let codeImgUrl = ref<string>('https://image.scqckypw.com/static/new/images/refreshen.png')
-
-
-// 加载地区列表(用于输入建议)
-const loadAllRegions = async () => {
-    const { data: res } = await _service.getAllRegions()
-    // 保存数据
-    regionsList.push(...res.data.region_list)
-}
-// 输入建议选择事件
+// 输入建议的选择事件
 const start_Select = (item: any) => {
     queryForm.start_region_name = item.region_name
     queryForm.start_region_id = item.region_id
@@ -205,25 +172,39 @@ const queryShuttleList = () => {
             shuttle_shift_date: queryForm.shuttle_shift_date
         }
         const { data: res } = await _service.getShuttleList(params)
+        // 传递/保存结果 跳转路由
+        console.log(`符合条件的线路`, res.data);
 
+        // ...
     })
 }
-// 刷新图片验证码
-const refreshCodeImg = async () => {
-    const res = await _service.getCheckCodePicture()
-    // 将后台返回的图片的二进制流转换
-    const imgBlob = new window.Blob([res.data], { type: 'image/png' })
-    codeImgUrl.value = window.URL.createObjectURL(imgBlob)
-
-    // 保存sessionId 供 登录接口
-    window.sessionStorage.setItem('SessionId', res.headers['session-id'])
-}
+//  乘车码表单
+const ticketForm = reactive({
+    phone_number: '',
+    check_code: ''
+})
+const ticketFormRef = ref<FormInstance>()
+const ticketFormRules = reactive<FormRules>({
+    phone_number: [
+        { required: true, message: '请输入手机号', trigger: 'blur' },
+        {
+            type: 'string',
+            pattern: /^(13\d|14[5|7]|15\d|166|17[3|6|7]|18\d)\d{8}$/,
+            message: '请输入有效的手机号码',
+            trigger: 'blur',
+        },
+    ],
+    check_code: [
+        { required: true, message: '请输入验证码', trigger: 'blur' },
+    ],
+})
 // 发送乘车码
 const sendRideCode = () => {
     ticketFormRef.value?.validate(async (valid) => {
-        if(!valid)   return 
+        if (!valid) return
         const { data: res } = await _service.sendRideCode(ticketForm)
         // 请求发送成功 重置表单
+        ElMessage.success('发送成功，请注意查收！')
         ticketFormRef.value?.resetFields()
     })
 
@@ -268,19 +249,5 @@ onMounted(() => {
     letter-spacing: 0.5em;
     font-size: 1.1em;
     text-align: center;
-}
-
-.Code_Container {
-    display: flex;
-    flex-direction: row-reverse;
-
-    .checkCode {
-        flex: 2;
-        cursor: pointer;
-    }
-
-    .el-input {
-        flex: 3;
-    }
 }
 </style>

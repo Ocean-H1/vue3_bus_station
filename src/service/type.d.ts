@@ -13,7 +13,13 @@ interface shuttleListParams {
     shuttle_shift_date:string,
 }
 // 发送乘车码接口的参数定义
-interface senRideCode {
+interface senRideCodeParams {
     phone_number:string,
     check_code: string
+}
+// 登录
+interface loginParams {
+    phone_number:string,
+    check_code: string,
+    password: string
 }
